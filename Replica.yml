@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: fresh-replica
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: multi-container
+  template:
+    metadata:
+      labels:
+        app: multi-container
+    spec:
+      containers:
+      - name: nginx1
+        image: vijay090/host11:latest
+        ports:
+        - containerPort: 80
+      - name: nginx2
+        image: arbazn/wed2:v1
+        ports:
+        - containerPort: 90
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          sed -i 's/:80/:90/g; s/80;/90;/g' /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf &&
+          nginx -g "daemon off;"
+      - name: ubuntu
+        image: busybox:1.28
+        command: ["/bin/sh"]
+        args: ["-c", "while true; do sleep 30; done"]
